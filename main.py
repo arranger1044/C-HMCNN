@@ -17,7 +17,6 @@ from utils import datasets
 
 from sklearn.impute import SimpleImputer
 from sklearn import preprocessing
-from sklearn.metrics import accuracy_score, hamming_loss, f1_score, jaccard_similarity_score
 
 import numpy
 
