@@ -4,8 +4,7 @@ os.environ["DATA_FOLDER"] = "./"
 
 import argparse
 
-import time
-
+from time import perf_counter
 import torch
 import torch.utils.data
 import torch.nn as nn
@@ -209,6 +208,7 @@ def main():
     criterion = nn.BCELoss()
 
     for epoch in range(num_epochs):
+        train_t = perf_counter()
         model.train()
 
         for i, (x, labels) in enumerate(train_loader):
@@ -238,6 +238,10 @@ def main():
             loss.backward()
             optimizer.step()
 
+        train_e = perf_counter()
+        print(f"{epoch+1}/{num_epochs} train loss: {loss}\t {(train_e-train_t):.4f}")
+
+    test_val_t = perf_counter()
     for i, (x,y) in enumerate(test_loader):
 
         model.eval()
@@ -266,8 +270,9 @@ def main():
             constr_test = torch.cat((constr_test, cpu_constrained_output), dim=0)
             y_test = torch.cat((y_test, y), dim =0)
 
-
+    test_val_e = perf_counter()
     score = average_precision_score(y_test[:,test.to_eval], constr_test.data[:,test.to_eval], average='micro')
+    print(f"test micro AP {score}\t{(test_val_e-test_val_t):.4f}")
 
     f = open('results/'+dataset_name+'.csv', 'a')
     f.write(str(seed)+ ',' +str(epoch) + ',' + str(score) + '\n')
