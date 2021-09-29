@@ -66,6 +66,7 @@ class ConstrainedFFNNModel(nn.Module):
             else:
                 x = self.f(self.fc[i](x))
                 x = self.drop(x)
+                
         if self.training:
             constrained_out = x
         else:
@@ -211,6 +212,7 @@ def main():
         train_t = perf_counter()
         model.train()
 
+        tot_loss = 0
         for i, (x, labels) in enumerate(train_loader):
 
             x = x.to(device)
@@ -235,11 +237,13 @@ def main():
             # Total correct predictions
             correct_train = (predicted == labels.byte()).sum()
 
+            tot_loss += loss
+            
             loss.backward()
             optimizer.step()
 
         train_e = perf_counter()
-        print(f"{epoch+1}/{num_epochs} train loss: {loss}\t {(train_e-train_t):.4f}")
+        print(f"{epoch+1}/{num_epochs} train loss: {tot_loss/(i+1)}\t {(train_e-train_t):.4f}")
 
     test_val_t = perf_counter()
     for i, (x,y) in enumerate(test_loader):
